@@ -24,12 +24,16 @@ app.post("/images/", async (c) => {
   if (typeof file === "string") {
     return c.text("Wrong format", 400);
   }
+  console.log(file);
 
   // @ts-ignore
   saveImageToDb(file, Number(c.get("login")));
-  console.log(await sendImageToModel(file));
-  console.log(file);
-  return c.text("Image received");
+  const modelResponse = await sendImageToModel(file)
+  console.log('Model Response:', modelResponse);
+  if (modelResponse === false) {
+    return c.text("Model error", 500);
+  }
+  return c.json(await modelResponse.json());
 });
 
 serve(

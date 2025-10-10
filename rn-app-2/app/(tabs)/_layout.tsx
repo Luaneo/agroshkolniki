@@ -1,9 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import { lightAccent } from "@/constants/theme";
 import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function TabLayout() {
+  useEffect(() => {
+    if (AsyncStorage.getItem("responses") === null) {
+      AsyncStorage.setItem("responses", `[{"name":"foo"}]`);
+    }
+  }, []);
+
   // return (
   //   <Tabs
   //     screenOptions={{

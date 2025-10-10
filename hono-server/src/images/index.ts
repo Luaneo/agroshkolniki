@@ -30,8 +30,13 @@ export async function sendImageToModel(file: File) {
   const filename = (file as any)?.name ?? "upload.bin";
 
   formData.append("file", file as any, filename);
-  const modelResponse = await fetch(`${process.env.FASTAPI_URL}/analyze_image`, {
-    method: "POST",
-    body: formData,
-  });
+  try {
+    const modelResponse = await fetch(`${process.env.FASTAPI_URL}/analyze_image`, {
+      method: "POST",
+      body: formData,
+    });
+    return modelResponse;
+  } catch {
+    return false;
+  }
 }
