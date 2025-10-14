@@ -3,6 +3,8 @@ import { basicAuth } from "hono/basic-auth";
 import { db } from "../db/index.js";
 import { users } from "../db/schema.js";
 import { eq } from "drizzle-orm";
+import { createMiddleware } from "hono/factory";
+import type { Context } from "hono";
 
 export function hashPassword(password: string) {
   return hash(password, 10);
@@ -24,10 +26,10 @@ export const authMiddleware = basicAuth({
       }
       const isPasswordValid = await comparePassword(
         password,
-        foundUser.hashedPassword
+        foundUser.passwordHash
       );
       if (isPasswordValid) {
-        c.set("login", username);
+        c.set("user_id", foundUser.id);
       }
       return isPasswordValid;
     } catch (err) {
@@ -36,3 +38,7 @@ export const authMiddleware = basicAuth({
     }
   },
 });
+
+export function getUserIdFromContext(c: Context) {
+  return c.get("userId") as number;
+}

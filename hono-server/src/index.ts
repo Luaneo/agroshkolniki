@@ -1,39 +1,34 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { authMiddleware, hashPassword } from "./users/auth.js";
-import { saveImageToDb, sendImageToModel } from "./images/index.js";
+import { saveImageToS3, sendImageToModel } from "./images/index.js";
+import { cors } from "hono/cors";
+import rnapp from "./rnapp.js";
 
 const app = new Hono();
 
+app.use(cors());
+
 app.get("/health/", (c) => {
-  return c.text("OK");
+  return c.text("Available.");
 });
 
-// app.use("/check/", authMiddleware);
-// app.use("/images/", authMiddleware);
-
-app.get("/check/", (c) => {
-  console.log("/check/ endpoint was called");
-  return c.text("Success");
-});
+app.route("/rnapp/", rnapp);
 
 app.post("/images/", async (c) => {
   console.log("/images/ endpoint was called");
   const body = await c.req.parseBody();
   const file = body["file"];
   if (typeof file === "string") {
+    console.log(JSON.stringify(file));
     return c.text("Wrong format", 400);
   }
-  console.log(file);
 
   // @ts-ignore
   saveImageToDb(file, Number(c.get("login")));
-  const modelResponse = await sendImageToModel(file)
-  console.log('Model Response:', modelResponse);
-  if (modelResponse === false) {
-    return c.text("Model error", 500);
-  }
-  return c.json(await modelResponse.json());
+  console.log(await sendImageToModel(file));
+  console.log(file);
+  return c.text("Image received");
 });
 
 serve(

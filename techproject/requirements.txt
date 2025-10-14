@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+torch
+Pillow
+opencv-python
+numpy
+python-multipart
+transformers
+accelerate
+aiogram==3.4.1
+python-dotenv
+dotenv

@@ -13,7 +13,6 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, TouchableHighlight, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import InlineEdit from "../../components/ui/inline-edit";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Home() {
   const [pressed, setPressed] = useState(false);
@@ -111,29 +110,17 @@ export default function Home() {
             Authorization: `Basic ${btoa("login:password")}`,
           },
         });
-        return await response.json();
+        return response.ok;
       } catch (e) {
         console.log(e);
         return false;
       }
     };
-    const responses = [];
     for (const image of images) {
-      let modelResponse = await sendImage(image);
-      while (!modelResponse) {
-        modelResponse = await sendImage(image);
-      }
-      responses.push({...modelResponse, name: image.name});
-      await new Promise((resolve) => setTimeout(() => resolve(0), 5000));
+      while (!await sendImage(image))
+      await new Promise((resolve) => setTimeout(() => resolve(0), 15000));
     }
-    const prevResponses = JSON.parse(
-      (await AsyncStorage.getItem("responses"))!
-    );
-    AsyncStorage.setItem(
-      "responses",
-      JSON.stringify([...prevResponses, ...responses])
-    );
-    navigate("/(tabs)/records");
+    navigate("..");
     setImages([]);
   };
 
@@ -160,7 +147,7 @@ export default function Home() {
 
             <View>
               <ThemedText type="subtitle">
-                Добрый день, user {pressed ? "yes" : null}
+                Добрый день, уважаемые члены жюри
               </ThemedText>
             </View>
 
